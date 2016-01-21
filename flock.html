@@ -1,0 +1,128 @@
+<html><head>
+		<meta charset="utf-8">
+		<title>Test</title>
+
+		
+	<style class="csscreations">/*Simple reset*/
+* {margin: 0; padding: 0;}
+
+#container {
+	/*You can use any kind of background here.
+	position:relative;
+	background: #9bB2D9;
+	border: 2px solid black;*/
+} 
+canvas {
+	border: 2px solid black;
+	display: block;
+	background: #9bB2D9;
+}</style></head>
+	<body>
+	
+	<div id="container">
+		<canvas id="canvas" ></canvas><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+	</div>
+	<script>$(document).ready(function(){
+	window.onload = function(){
+	//canvas init
+	var canvas = document.getElementById("canvas");
+	var ctx = canvas.getContext("2d");
+	
+	//canvas dimensions
+	var W = window.innerWidth - 100;
+	var H = window.innerHeight - 200;
+	canvas.width = W;
+	canvas.height = H; //leave some space for controls
+	var padStartPosition = 20;
+	
+	var birds = [];
+	var maxBirds = 25
+	var startBirds = 25;
+	var initVelocity = 3;
+	var birdSize = 4;
+	
+	var CTRx = W / 2.0;
+	var CTRy = H / 2.0;
+	var cmx = W / 2.0;
+	var cmy = H / 2.0;
+	var cx = 0;
+	var cy = 0;
+	
+	//create initial birds
+	for(var i = 0; i < startBirds; i++)
+	{
+		birds.push({
+			px: Math.random()*(W - padStartPosition*2)+padStartPosition, //initial x-coordinate, keep off edges
+			py: Math.random()*(H - padStartPosition*2)+padStartPosition, //initial y-coordinate, keep off edges
+			wt: 1, //start all birds equal weight
+			vx: Math.random()*(initVelocity*2)-initVelocity, //x-velocity
+			vy: Math.random()*(initVelocity*2)-initVelocity  //y-velocity
+		})
+	}
+	
+	//calculate initial center of mass
+	for(var i = 0; i < birds.length; i++)
+	{
+		cmx += (birds[i].px - CTRx)/(birds.length*1.0);
+		cmy += (birds[i].py - CTRy)/(birds.length*1.0);
+		cx += birds[i].px/(birds.length*1.0);
+		cy += birds[i].py/(birds.length*1.0);
+	}
+	
+	
+	//Lets draw the birds
+	function draw()
+	{
+		ctx.clearRect(0, 0, W, H);
+		
+		ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+		ctx.beginPath();
+		for(var i = 0; i < birds.length; i++)
+		{
+			var b = birds[i];
+			ctx.moveTo(b.px, b.py);
+			ctx.arc(b.px, b.py, birdSize, 0, Math.PI*2, true);
+		}
+		ctx.fill();
+		
+		ctx.beginPath();
+		ctx.fillStyle = "rgba(255, 0, 0, 0.8)";
+		ctx.moveTo(cx, cy);
+		ctx.arc(cx, cy, 10, 0, Math.PI*2, true);
+		
+		ctx.fill();
+		update();
+	}
+	
+	//Function to move the snowflakes
+	function update()
+	{		
+		for(var i = 0; i < birds.length; i++)
+		{
+			//remove this birds OLD components of COM
+			cx -= birds[i].px/(birds.length*1.0);
+			cy -= birds[i].py/(birds.length*1.0);
+			
+			birds[i].px = birds[i].px + birds[i].vx;
+			birds[i].py = birds[i].py + birds[i].vy;
+			
+			if (birds[i].px <= 0 || birds[i].px >= W) birds[i].vx = - birds[i].vx;
+			if (birds[i].py <= 0 || birds[i].py >= H) birds[i].vy = - birds[i].vy;
+			
+			//add back this birds NEW components of COM
+			cx += birds[i].px/(birds.length*1.0);
+			cy += birds[i].py/(birds.length*1.0);
+		}
+	}
+	
+	//animation loop
+	setInterval(draw, 33);
+}
+
+
+
+
+
+
+});</script>
+</body></html>
