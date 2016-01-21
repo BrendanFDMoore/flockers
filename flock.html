@@ -71,52 +71,64 @@ canvas {
 	
 	
 	//Lets draw the birds
-	function draw()
+	function DrawBirds()
 	{
+		//first, wipe the canvas
 		ctx.clearRect(0, 0, W, H);
 		
+		//start drawing in black
 		ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
 		ctx.beginPath();
 		for(var i = 0; i < birds.length; i++)
 		{
 			var b = birds[i];
+			//draw current bird
 			ctx.moveTo(b.px, b.py);
 			ctx.arc(b.px, b.py, birdSize, 0, Math.PI*2, true);
 		}
+		//write to canvas
 		ctx.fill();
 		
+		//start drawing red (for center of mass)
 		ctx.beginPath();
 		ctx.fillStyle = "rgba(255, 0, 0, 0.8)";
 		ctx.moveTo(cx, cy);
 		ctx.arc(cx, cy, 10, 0, Math.PI*2, true);
-		
-		ctx.fill();
-		update();
+		//write out to canvas
+		ctx.fill();		
 	}
 	
-	//Function to move the snowflakes
-	function update()
+	//Updates birds positions according to velocity, checking for edge collision, and shifts the center of mass
+	function MoveBirds()
 	{		
 		for(var i = 0; i < birds.length; i++)
 		{
-			//remove this birds OLD components of COM
+			//remove current birds' OLD components of COM
 			cx -= birds[i].px/(birds.length*1.0);
 			cy -= birds[i].py/(birds.length*1.0);
 			
+			//move bird according to current velocity
 			birds[i].px = birds[i].px + birds[i].vx;
 			birds[i].py = birds[i].py + birds[i].vy;
 			
+			//check for hitting the edge, and reverse that velocity
 			if (birds[i].px <= 0 || birds[i].px >= W) birds[i].vx = - birds[i].vx;
 			if (birds[i].py <= 0 || birds[i].py >= H) birds[i].vy = - birds[i].vy;
 			
-			//add back this birds NEW components of COM
+			//add back current birds NEW components of COM
 			cx += birds[i].px/(birds.length*1.0);
 			cy += birds[i].py/(birds.length*1.0);
 		}
 	}
 	
+	function AnimationFrameCycle()
+	{	
+		MoveBirds();
+		DrawBirds();
+	}
+	
 	//animation loop
-	setInterval(draw, 33);
+	setInterval(AnimationFrameCycle, 33);
 }
 
 
